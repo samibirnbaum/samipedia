@@ -24,3 +24,6 @@
 
 #own notes
 \Tweak.text
+
+# Ignore application configuration
+/config/application.yml

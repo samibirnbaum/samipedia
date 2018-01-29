@@ -20,17 +20,35 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                        <%= link_to  "Home", root_path, class: "nav-link" %>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Link</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Sign In</a>
-                    </li>
+                    <%if user_signed_in?%>
+                        <li class="nav-item">
+                            <%= link_to  "Sign Out - #{current_user.email}", destroy_user_session_path, method: :delete, class: "nav-link" %>
+                        </li>
+                    <%else%>
+                        <li class="nav-item">
+                            <%= link_to  "Sign In", new_user_session_path, class: "nav-link" %>
+                        </li>
+                    <%end%>
                 </ul>
             </div>
         </nav>
+        
+        <%if flash[:notice] %>
+            <div class="alert alert-success alert">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <%= flash[:notice] %>
+            </div>
+        <%elsif flash[:alert] %>
+            <div class="alert alert-warning">  
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <%= flash[:alert] %>
+            </div>
+        <%end%>
         
         <%= yield %>
   </body>
