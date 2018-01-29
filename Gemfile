@@ -44,3 +44,5 @@ gem 'rails-controller-testing'
 
 gem 'bootstrap', '~> 4.0.0'
 gem 'sprockets-rails', '~> 3.2', '>= 3.2.1'
+
+gem 'devise'
