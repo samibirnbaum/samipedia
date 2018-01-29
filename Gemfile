@@ -40,3 +40,7 @@ group :development do
 end
 
 gem 'rspec-rails', '~> 3.7', '>= 3.7.2'
+gem 'rails-controller-testing'
+
+gem 'bootstrap', '~> 4.0.0'
+gem 'sprockets-rails', '~> 3.2', '>= 3.2.1'
