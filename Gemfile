@@ -48,3 +48,9 @@ gem 'sprockets-rails', '~> 3.2', '>= 3.2.1'
 gem 'devise'
 
 gem 'figaro', '1.0'
+
+gem 'shoulda-matchers', '~> 3.1', '>= 3.1.2'
+
+group :development do
+  gem "rails-erd"
+end

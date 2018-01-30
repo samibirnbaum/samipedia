@@ -6,5 +6,7 @@ class User < ApplicationRecord
   #@email
   #@password
   #@load of devise atts
+
+  has_many :wikis
   
 end
