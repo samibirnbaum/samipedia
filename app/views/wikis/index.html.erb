@@ -1,0 +1,12 @@
+<h1>Wiki's Home Page</h1>
+
+<hr>
+
+<%@wikis.each do |wiki|%>
+    <p><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+    <small>
+        Created <%=time_ago_in_words(wiki.created_at)%> ago
+    </small>
+    <br>
+    <br>
+<%end%>
