@@ -22,4 +22,21 @@ RSpec.describe WikisController, type: :controller do
         end
     end
 
+    describe 'GET #new' do
+        it 'assigns a new wiki object to @wiki' do
+            get :new
+            expect(assigns(:wiki)).to be_an_instance_of(Wiki)
+        end
+        
+        it 'returns http get success' do
+            get :new
+            expect(response).to have_http_status(:success)
+        end
+
+        it 'specifically renders the index view' do
+            get :new
+            expect(response).to render_template(:new)
+        end
+    end
+
 end

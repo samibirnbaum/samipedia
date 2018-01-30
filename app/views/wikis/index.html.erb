@@ -2,6 +2,8 @@
 
 <hr>
 
+<%= link_to  "New Wiki", new_wiki_path, class: "btn btn-success" %>
+
 <%@wikis.each do |wiki|%>
     <p><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
     <small>
