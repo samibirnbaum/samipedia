@@ -1,13 +1,25 @@
 require "random_data"
 
 5.times do
-    User.create!(
+    user = User.new(
         email: RandomData.random_email,
         password: RandomData.random_sentence
     )
+    user.skip_confirmation!
+    user.save!
 end
 
+member = User.new(
+    email: "member@member.com", 
+    password: "member"
+    )
+member.skip_confirmation!
+member.save!
+
 @users = User.all
+
+
+
 
 10.times do
     Wiki.create!(
