@@ -63,6 +63,12 @@ RSpec.describe WikisController, type: :controller do
                 #unclear how to test devise #authenticate_user!
             end
         end
+
+        describe 'DELETE #destroy' do
+            it 'redirects guest to sign in page' do
+                #unclear how to test devise #authenticate_user!
+            end
+        end
     end
     
     
@@ -183,6 +189,35 @@ RSpec.describe WikisController, type: :controller do
             it 'redirects user to show view' do
                 put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
                 expect(response).to redirect_to(wiki_path(wiki.id))
+            end
+        end
+
+        describe 'DELETE #destroy' do
+            context 'member on own wiki' do
+                it 'assigns to @wiki the wiki with id in url to delete' do
+                    delete :destroy, params: {id: wiki.id} #signed in as my_user i own this wiki
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+
+                it 'deletes that wiki from the datbase' do
+                    delete :destroy, params: {id: wiki.id}
+                    expect(Wiki.where(id: wiki.id)).to eq([])
+                end
+
+                it 'redirects user to the wiki home page' do
+                    delete :destroy, params: {id: wiki.id}
+                    expect(response).to redirect_to(wikis_path)
+                end
+            end
+
+            context 'member on someone elses wiki' do
+                let(:other_user) {User.create!(email: RandomData.random_email, password: RandomData.random_sentence)}
+                let(:other_wiki) {Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: false, user: other_user)}
+
+                it 'redirects user back to show page' do
+                    delete :destroy, params: {id: other_wiki.id}
+                    expect(response).to redirect_to(wiki_path(other_wiki.id))
+                end
             end
         end
     end

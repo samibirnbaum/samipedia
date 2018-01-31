@@ -1,6 +1,7 @@
 class WikisController < ApplicationController
 
     before_action :authenticate_user!, except: [:index, :show]
+    before_action :wiki_owner?, only: [:destroy]
 
     def index
         @wikis = Wiki.all
@@ -48,4 +49,26 @@ class WikisController < ApplicationController
             render :edit
         end
     end
+
+    def destroy
+        @wiki = Wiki.find(params[:id])
+
+        if @wiki.delete
+            flash[:notice] = "Wiki successfully deleted!"
+            redirect_to(wikis_path)
+        else
+            flash[:alert] = "There was an error deleting your wiki. Please try again."
+            render :show
+        end
+    end
+
+    private
+        def wiki_owner?
+            @wiki = Wiki.find(params[:id])
+
+            if @wiki.user != current_user
+                flash[:alert] = "You can only delete a wiki you own"
+                redirect_to(wiki_path(@wiki.id))
+            end 
+        end
 end
