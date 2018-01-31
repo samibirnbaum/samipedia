@@ -7,7 +7,7 @@ class WikisController < ApplicationController
     end
 
     def show
-        
+        @wiki = Wiki.find(params[:id])
     end
 
     def new
@@ -28,5 +28,9 @@ class WikisController < ApplicationController
             flash[:alert] = "There was an error creating your wiki. Please try again."
             render :new
         end
+    end
+
+    def edit
+        @wiki = Wiki.find(params[:id])
     end
 end
