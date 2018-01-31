@@ -41,19 +41,25 @@ RSpec.describe WikisController, type: :controller do
         end
 
         describe 'GET #new' do
-            it 'redirects user to sign in page' do
+            it 'redirects guest to sign in page' do
                 #unclear how to test devise #authenticate_user!
             end
         end
 
         describe 'POST #create' do
-            it 'assigns params passed in to our new @wiki object' do
+            it 'redirects guest to sign in page' do
                 #unclear how to test devise #authenticate_user!
             end
         end
 
         describe 'GET #edit' do
-            it 'redirects user to sign in page' do
+            it 'redirects guest to sign in page' do
+                #unclear how to test devise #authenticate_user!
+            end
+        end
+
+        describe 'PUT #update' do
+            it 'redirects guest to sign in page' do
                 #unclear how to test devise #authenticate_user!
             end
         end
@@ -158,6 +164,25 @@ RSpec.describe WikisController, type: :controller do
             it 'specifically renders the index view' do
                 get :edit, params: {id: wiki.id}
                 expect(response).to render_template(:edit)
+            end
+        end
+
+        describe 'PUT #update' do
+            it 'assigns to @wiki the wiki with the id in url' do
+                put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                expect(assigns(:wiki).id).to eq(wiki.id)
+            end
+
+            it 'assigns @wiki the new updated values' do
+                put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                expect(assigns(:wiki).title).to eq("updated")
+                expect(assigns(:wiki).body).to eq("new updated body")
+                expect(assigns(:wiki).private).to eq(false)
+            end
+
+            it 'redirects user to show view' do
+                put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                expect(response).to redirect_to(wiki_path(wiki.id))
             end
         end
     end
