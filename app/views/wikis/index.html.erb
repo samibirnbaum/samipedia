@@ -7,11 +7,30 @@
 <br>
 <br>
 
+<h2>Public Wikis</h2>
 <%@wikis.each do |wiki|%>
-    <p><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
-    <small>
-        Created <%=time_ago_in_words(wiki.created_at)%> ago
-    </small>
-    <br>
-    <br>
+    <%if wiki.private == false%>
+        <p><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+        <small>
+            Created <%=time_ago_in_words(wiki.created_at)%> ago
+        </small>
+        <br>
+        <br>
+    <%end%>
 <%end%>
+
+<hr>
+
+<h2>Private Wikis</h2>
+<%@wikis.each do |wiki|%>
+    <%if wiki.private == true%>
+        <p><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+        <small>
+            Created <%=time_ago_in_words(wiki.created_at)%> ago
+        </small>
+        <br>
+        <br>
+    <%end%>
+<%end%>
+
+<hr>

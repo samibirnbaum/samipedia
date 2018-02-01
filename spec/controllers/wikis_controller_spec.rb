@@ -4,7 +4,8 @@ require "random_data"
 RSpec.describe WikisController, type: :controller do
     let(:my_user) { User.create!(email: RandomData.random_email, password: RandomData.random_sentence) }
     let(:wiki) { Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: false, user: my_user) }
-    
+    let(:private_wiki) { Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: true, user: my_user) }
+
     context "guest" do
         describe 'GET #index' do
             it 'assigns all the wikis to @wikis' do
@@ -78,10 +79,10 @@ RSpec.describe WikisController, type: :controller do
     
     
     
-    context "member" do
+    context "standard user" do
         before do
             @request.env["devise.mapping"] = Devise.mappings[:user]
-            user = my_user
+            user = my_user #standard role by default
             user.confirm
             sign_in user
         end
@@ -103,23 +104,6 @@ RSpec.describe WikisController, type: :controller do
             end
         end
 
-        describe 'GET #show' do
-            it 'gets the right wiki from the datbase and assigns it to @wiki base on params id' do
-                get :show, params: {id: wiki.id}
-                expect(assigns(:wiki)).to eq(wiki)
-            end
-            
-            it 'returns http get success' do
-                get :show, params: {id: wiki.id}
-                expect(response).to have_http_status(:success)
-            end
-
-            it 'specifically renders the show view' do
-                get :show, params: {id: wiki.id}
-                expect(response).to render_template(:show)
-            end
-        end
-
         describe 'GET #new' do
             it 'assigns a new wiki object to @wiki' do
                 get :new
@@ -136,6 +120,63 @@ RSpec.describe WikisController, type: :controller do
                 expect(response).to render_template(:new)
             end
         end
+
+        #standard user can only create public wikis
+        describe 'POST #create' do
+            context 'public wiki' do
+                it 'assigns params passed in to our new @wiki object' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
+                    expect(assigns(:wiki).title).to eq("title")
+                    expect(assigns(:wiki).body).to eq("the body of our new wiki")
+                    expect(assigns(:wiki).private).to eq(false)
+                    expect(assigns(:wiki).user_id).to eq(my_user.id)
+                end
+
+                it 'saves that wiki object to the database' do
+                    expect {post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}}.to change{Wiki.all.count}.by(1)
+                end
+
+                it 'redirects user to the show page' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
+                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                end
+            end
+
+            context 'private wiki' do
+                it 'redirects standard user back to home page' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}
+                    expect(response).to redirect_to(root_path)
+                end
+            end
+        end
+
+        describe 'GET #show' do
+            context 'public wiki' do
+                it 'gets the right wiki from the datbase and assigns it to @wiki base on params id' do
+                    get :show, params: {id: wiki.id}
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+                
+                it 'returns http get success' do
+                    get :show, params: {id: wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the show view' do
+                    get :show, params: {id: wiki.id}
+                    expect(response).to render_template(:show)
+                end
+            end
+
+            context 'private wiki' do
+                it 'redirects standard user back to home page' do
+                    get :show, params: {id: private_wiki.id}
+                    expect(response).to redirect_to(root_path)
+                end
+            end
+        end
+
+     
 
         describe 'POST #create' do
             it 'assigns params passed in to our new @wiki object' do
@@ -217,6 +258,252 @@ RSpec.describe WikisController, type: :controller do
                 it 'redirects user back to show page' do
                     delete :destroy, params: {id: other_wiki.id}
                     expect(response).to redirect_to(wiki_path(other_wiki.id))
+                end
+            end
+        end
+    end
+
+    context 'premimum user' do
+        before do
+            @request.env["devise.mapping"] = Devise.mappings[:user]
+            user = my_user
+            user.premium!
+            user.confirm
+            sign_in user
+        end
+
+        describe 'GET #index' do
+            it 'assigns all the wikis to @wikis' do
+                get :index
+                expect(assigns(:wikis)).to eq([wiki])  
+            end
+
+            it 'returns http get success' do
+                get :index
+                expect(response).to have_http_status(:success)
+            end
+
+            it 'specifically renders the index view' do
+                get :index
+                expect(response).to render_template(:index)
+            end
+        end
+
+        describe 'GET #new' do
+            it 'assigns a new wiki object to @wiki' do
+                get :new
+                expect(assigns(:wiki)).to be_an_instance_of(Wiki)
+            end
+            
+            it 'returns http get success' do
+                get :new
+                expect(response).to have_http_status(:success)
+            end
+
+            it 'specifically renders the index view' do
+                get :new
+                expect(response).to render_template(:new)
+            end
+        end
+
+        describe 'POST #create' do
+            context 'public wiki' do
+                it 'assigns params passed in to our new @wiki object' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
+                    expect(assigns(:wiki).title).to eq("title")
+                    expect(assigns(:wiki).body).to eq("the body of our new wiki")
+                    expect(assigns(:wiki).private).to eq(false)
+                    expect(assigns(:wiki).user_id).to eq(my_user.id)
+                end
+
+                it 'saves that wiki object to the database' do
+                    expect {post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}}.to change{Wiki.all.count}.by(1)
+                end
+
+                it 'redirects user to the show page' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
+                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                end
+            end
+
+            context 'private wiki' do
+                it 'assigns params passed in to our new @wiki object' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}
+                    expect(assigns(:wiki).title).to eq("title")
+                    expect(assigns(:wiki).body).to eq("the body of our new wiki")
+                    expect(assigns(:wiki).private).to eq(true)
+                    expect(assigns(:wiki).user_id).to eq(my_user.id)
+                end
+
+                it 'saves that wiki object to the database' do
+                    expect {post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}}.to change{Wiki.all.count}.by(1)
+                end
+
+                it 'redirects user to the show page' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}
+                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                end
+            end
+        end
+
+        describe 'GET #show' do
+            context 'public wiki' do
+                it 'gets the right wiki from the datbase and assigns it to @wiki base on params id' do
+                    get :show, params: {id: wiki.id}
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+                
+                it 'returns http get success' do
+                    get :show, params: {id: wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the show view' do
+                    get :show, params: {id: wiki.id}
+                    expect(response).to render_template(:show)
+                end
+            end
+
+            context 'private wiki' do
+                it 'gets the right wiki from the datbase and assigns it to @wiki base on params id' do
+                    get :show, params: {id: private_wiki.id}
+                    expect(assigns(:wiki)).to eq(private_wiki)
+                end
+                
+                it 'returns http get success' do
+                    get :show, params: {id: private_wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the show view' do
+                    get :show, params: {id: private_wiki.id}
+                    expect(response).to render_template(:show)
+                end
+            end
+        end
+    end
+
+    
+    
+    
+    
+    
+    
+    context 'admin user' do
+        before do
+            @request.env["devise.mapping"] = Devise.mappings[:user]
+            user = my_user
+            user.admin!
+            user.confirm
+            sign_in user
+        end
+
+        describe 'GET #index' do
+            it 'assigns all the wikis to @wikis' do
+                get :index
+                expect(assigns(:wikis)).to eq([wiki])  
+            end
+
+            it 'returns http get success' do
+                get :index
+                expect(response).to have_http_status(:success)
+            end
+
+            it 'specifically renders the index view' do
+                get :index
+                expect(response).to render_template(:index)
+            end
+        end
+
+        describe 'GET #new' do
+            it 'assigns a new wiki object to @wiki' do
+                get :new
+                expect(assigns(:wiki)).to be_an_instance_of(Wiki)
+            end
+            
+            it 'returns http get success' do
+                get :new
+                expect(response).to have_http_status(:success)
+            end
+
+            it 'specifically renders the index view' do
+                get :new
+                expect(response).to render_template(:new)
+            end
+        end
+
+        describe 'POST #create' do
+            context 'public wiki' do
+                it 'assigns params passed in to our new @wiki object' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
+                    expect(assigns(:wiki).title).to eq("title")
+                    expect(assigns(:wiki).body).to eq("the body of our new wiki")
+                    expect(assigns(:wiki).private).to eq(false)
+                    expect(assigns(:wiki).user_id).to eq(my_user.id)
+                end
+
+                it 'saves that wiki object to the database' do
+                    expect {post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}}.to change{Wiki.all.count}.by(1)
+                end
+
+                it 'redirects user to the show page' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
+                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                end
+            end
+
+            context 'private wiki' do
+                it 'assigns params passed in to our new @wiki object' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}
+                    expect(assigns(:wiki).title).to eq("title")
+                    expect(assigns(:wiki).body).to eq("the body of our new wiki")
+                    expect(assigns(:wiki).private).to eq(true)
+                    expect(assigns(:wiki).user_id).to eq(my_user.id)
+                end
+
+                it 'saves that wiki object to the database' do
+                    expect {post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}}.to change{Wiki.all.count}.by(1)
+                end
+
+                it 'redirects user to the show page' do
+                    post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}
+                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                end
+            end
+        end
+
+        describe 'GET #show' do
+            context 'public wiki' do
+                it 'gets the right wiki from the datbase and assigns it to @wiki base on params id' do
+                    get :show, params: {id: wiki.id}
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+                
+                it 'returns http get success' do
+                    get :show, params: {id: wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the show view' do
+                    get :show, params: {id: wiki.id}
+                    expect(response).to render_template(:show)
+                end
+            end
+
+            context 'private wiki' do
+                it 'gets the right wiki from the datbase and assigns it to @wiki base on params id' do
+                    get :show, params: {id: private_wiki.id}
+                    expect(assigns(:wiki)).to eq(private_wiki)
+                end
+                
+                it 'returns http get success' do
+                    get :show, params: {id: private_wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the show view' do
+                    get :show, params: {id: private_wiki.id}
+                    expect(response).to render_template(:show)
                 end
             end
         end

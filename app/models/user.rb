@@ -6,7 +6,12 @@ class User < ApplicationRecord
   #@email
   #@password
   #@load of devise atts
+  enum role: [:standard, :premium, :admin]
 
   has_many :wikis
+
+
+
+  after_initialize {self.role = :standard if self.role.nil?}
   
 end

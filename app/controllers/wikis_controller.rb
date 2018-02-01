@@ -9,6 +9,7 @@ class WikisController < ApplicationController
 
     def show
         @wiki = Wiki.find(params[:id])
+        authorize @wiki
     end
 
     def new
@@ -21,6 +22,8 @@ class WikisController < ApplicationController
         @wiki.body = params[:wiki][:body]
         @wiki.private = params[:wiki][:private]
         @wiki.user_id = current_user.id
+
+        authorize @wiki #checks wiki policy
 
         if @wiki.save
             flash[:notice] = "Your new wiki has been successfully saved!"

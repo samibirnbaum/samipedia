@@ -9,12 +9,28 @@ require "random_data"
     user.save!
 end
 
-member = User.new(
-    email: "member@member.com", 
-    password: "member"
+standard = User.new(
+    email: "standard@standard.com", 
+    password: "standard"
     )
-member.skip_confirmation!
-member.save!
+standard.skip_confirmation!
+standard.save!
+
+premium = User.new(
+    email: "premium@premium.com", 
+    password: "premium"
+    )
+premium.premium!
+premium.skip_confirmation!
+premium.save!
+
+admin = User.new(
+    email: "admin@admin.com", 
+    password: "adminn"
+    )
+admin.admin!
+admin.skip_confirmation!
+admin.save!
 
 @users = User.all
 

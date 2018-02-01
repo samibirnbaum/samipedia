@@ -54,3 +54,5 @@ gem 'shoulda-matchers', '~> 3.1', '>= 3.1.2'
 group :development do
   gem "rails-erd"
 end
+
+gem "pundit"
