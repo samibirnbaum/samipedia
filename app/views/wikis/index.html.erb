@@ -10,10 +10,9 @@
 <h2>Public Wikis</h2>
 <%@wikis.each do |wiki|%>
     <%if wiki.private == false%>
-        <p><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
-        <small>
-            Created <%=time_ago_in_words(wiki.created_at)%> ago
-        </small>
+        <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+        <small>Public Wiki <br></small>
+        <small>Created <%=time_ago_in_words(wiki.created_at)%> ago</small>
         <br>
         <br>
     <%end%>
@@ -22,12 +21,12 @@
 <hr>
 
 <h2>Private Wikis</h2>
+<h3 class="premium-title">Premium Members Only</h3>
 <%@wikis.each do |wiki|%>
     <%if wiki.private == true%>
-        <p><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
-        <small>
-            Created <%=time_ago_in_words(wiki.created_at)%> ago
-        </small>
+        <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+        <small class="small-mine"> Private Wiki <br></small>
+        <small> Created <%=time_ago_in_words(wiki.created_at)%> ago</small>
         <br>
         <br>
     <%end%>

@@ -6,6 +6,10 @@ RSpec.describe WikisController, type: :controller do
     let(:wiki) { Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: false, user: my_user) }
     let(:private_wiki) { Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: true, user: my_user) }
 
+    let(:other_user) { User.create!(email: RandomData.random_email, password: RandomData.random_sentence) }
+    let(:other_wiki) { Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: false, user: other_user) }
+    let(:private_other_wiki) { Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: true, user: other_user) }
+
     context "guest" do
         describe 'GET #index' do
             it 'assigns all the wikis to @wikis' do
@@ -176,65 +180,62 @@ RSpec.describe WikisController, type: :controller do
             end
         end
 
-     
-
-        describe 'POST #create' do
-            it 'assigns params passed in to our new @wiki object' do
-                post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
-                expect(assigns(:wiki).title).to eq("title")
-                expect(assigns(:wiki).body).to eq("the body of our new wiki")
-                expect(assigns(:wiki).private).to eq(false)
-                expect(assigns(:wiki).user_id).to eq(my_user.id)
-            end
-
-            it 'saves that wiki object to the database' do
-                expect {post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}}.to change{Wiki.all.count}.by(1)
-            end
-
-            it 'redirects user to the show page' do
-                post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
-                expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
-            end
-        end
-
         describe 'GET #edit' do
-            it 'assigns to @wiki the wiki from the database whos param you passed in' do
-                get :edit, params: {id: wiki.id}
-                expect(assigns(:wiki)).to eq(wiki)
+            context 'public wiki' do
+                it 'assigns to @wiki the wiki from the database whos param you passed in' do
+                    get :edit, params: {id: wiki.id}
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+
+                it 'returns http get success' do
+                    get :edit, params: {id: wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the index view' do
+                    get :edit, params: {id: wiki.id}
+                    expect(response).to render_template(:edit)
+                end
             end
 
-            it 'returns http get success' do
-                get :edit, params: {id: wiki.id}
-                expect(response).to have_http_status(:success)
-            end
-
-            it 'specifically renders the index view' do
-                get :edit, params: {id: wiki.id}
-                expect(response).to render_template(:edit)
+            context 'private wiki' do
+                it 'unauthorized, redirected to root page' do
+                    get :edit, params: {id: private_wiki.id}
+                    expect(response).to redirect_to(root_path)
+                end
             end
         end
 
         describe 'PUT #update' do
-            it 'assigns to @wiki the wiki with the id in url' do
-                put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
-                expect(assigns(:wiki).id).to eq(wiki.id)
+            context 'update public wiki keeping it public' do
+                it 'assigns to @wiki the wiki with the id in url' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(assigns(:wiki).id).to eq(wiki.id)
+                end
+
+                it 'assigns @wiki the new updated values' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(assigns(:wiki).title).to eq("updated")
+                    expect(assigns(:wiki).body).to eq("new updated body")
+                    expect(assigns(:wiki).private).to eq(false)
+                end
+
+                it 'redirects user to show view' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(response).to redirect_to(wiki_path(wiki.id))
+                end
             end
 
-            it 'assigns @wiki the new updated values' do
-                put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
-                expect(assigns(:wiki).title).to eq("updated")
-                expect(assigns(:wiki).body).to eq("new updated body")
-                expect(assigns(:wiki).private).to eq(false)
-            end
-
-            it 'redirects user to show view' do
-                put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
-                expect(response).to redirect_to(wiki_path(wiki.id))
+            context 'update public wiki trying to make it private' do
+                it 'does something' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: true}}
+                    expect(response).to redirect_to(root_path)
+                end
             end
         end
 
         describe 'DELETE #destroy' do
-            context 'member on own wiki' do
+            context 'on own wiki' do
                 it 'assigns to @wiki the wiki with id in url to delete' do
                     delete :destroy, params: {id: wiki.id} #signed in as my_user i own this wiki
                     expect(assigns(:wiki)).to eq(wiki)
@@ -251,13 +252,10 @@ RSpec.describe WikisController, type: :controller do
                 end
             end
 
-            context 'member on someone elses wiki' do
-                let(:other_user) {User.create!(email: RandomData.random_email, password: RandomData.random_sentence)}
-                let(:other_wiki) {Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: false, user: other_user)}
-
-                it 'redirects user back to show page' do
+            context 'on someone elses wiki' do
+                it 'redirects user back to root page' do
                     delete :destroy, params: {id: other_wiki.id}
-                    expect(response).to redirect_to(wiki_path(other_wiki.id))
+                    expect(response).to redirect_to(root_path)
                 end
             end
         end
@@ -378,6 +376,122 @@ RSpec.describe WikisController, type: :controller do
                 it 'specifically renders the show view' do
                     get :show, params: {id: private_wiki.id}
                     expect(response).to render_template(:show)
+                end
+            end
+        end
+
+        describe 'GET #edit' do
+            context 'public wiki' do
+                it 'assigns to @wiki the wiki from the database whos param you passed in' do
+                    get :edit, params: {id: wiki.id}
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+
+                it 'returns http get success' do
+                    get :edit, params: {id: wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the index view' do
+                    get :edit, params: {id: wiki.id}
+                    expect(response).to render_template(:edit)
+                end
+            end
+
+            context 'private wiki' do
+                it 'assigns to @wiki the wiki from the database whos param you passed in' do
+                    get :edit, params: {id: private_wiki.id}
+                    expect(assigns(:wiki)).to eq(private_wiki)
+                end
+
+                it 'returns http get success' do
+                    get :edit, params: {id: private_wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the index view' do
+                    get :edit, params: {id: private_wiki.id}
+                    expect(response).to render_template(:edit)
+                end
+            end
+        end
+
+        describe 'PUT #update' do
+            context 'update public wiki' do
+                it 'assigns to @wiki the wiki with the id in url' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(assigns(:wiki).id).to eq(wiki.id)
+                end
+
+                it 'assigns @wiki the new updated values' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(assigns(:wiki).title).to eq("updated")
+                    expect(assigns(:wiki).body).to eq("new updated body")
+                    expect(assigns(:wiki).private).to eq(false)
+                end
+
+                it 'redirects user to show view' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(response).to redirect_to(wiki_path(wiki.id))
+                end
+            end
+
+            context 'update private wiki' do
+                it 'assigns to @wiki the wiki with the id in url' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(assigns(:wiki).id).to eq(wiki.id)
+                end
+
+                it 'assigns @wiki the new updated values' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(assigns(:wiki).title).to eq("updated")
+                    expect(assigns(:wiki).body).to eq("new updated body")
+                    expect(assigns(:wiki).private).to eq(false)
+                end
+
+                it 'redirects user to show view' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(response).to redirect_to(wiki_path(wiki.id))
+                end
+            end
+
+            context 'update public wiki not your own changing private status' do
+                it "redirects you to root page" do
+                    put :update, params: {id: other_wiki.id, wiki: {title: "updated", body: "new updated body", private: true}} #changed from false to true
+                    expect(response).to redirect_to(root_path)
+                end
+            end
+        end
+
+            context 'update private wiki not your own changing private status' do
+                it "redirects you to root page" do
+                    put :update, params: {id: private_other_wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(response).to redirect_to(root_path)
+                end
+            end
+
+        describe 'DELETE #destroy' do
+            context 'on own wiki' do
+                it 'assigns to @wiki the wiki with id in url to delete' do
+                    delete :destroy, params: {id: wiki.id} #signed in as my_user i own this wiki
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+
+                it 'deletes that wiki from the datbase' do
+                    delete :destroy, params: {id: wiki.id}
+                    expect(Wiki.where(id: wiki.id)).to eq([])
+                end
+
+                it 'redirects user to the wiki home page' do
+                    delete :destroy, params: {id: wiki.id}
+                    expect(response).to redirect_to(wikis_path)
+                end
+            end
+
+            context 'on someone elses wiki' do
+                it 'redirects user back to root page' do
+                    delete :destroy, params: {id: other_wiki.id}
+                    expect(response).to redirect_to(root_path)
                 end
             end
         end
@@ -504,6 +618,118 @@ RSpec.describe WikisController, type: :controller do
                 it 'specifically renders the show view' do
                     get :show, params: {id: private_wiki.id}
                     expect(response).to render_template(:show)
+                end
+            end
+        end
+
+        describe 'GET #edit' do
+            context 'public wiki' do
+                it 'assigns to @wiki the wiki from the database whos param you passed in' do
+                    get :edit, params: {id: wiki.id}
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+
+                it 'returns http get success' do
+                    get :edit, params: {id: wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the index view' do
+                    get :edit, params: {id: wiki.id}
+                    expect(response).to render_template(:edit)
+                end
+            end
+
+            context 'private wiki' do
+                it 'assigns to @wiki the wiki from the database whos param you passed in' do
+                    get :edit, params: {id: private_wiki.id}
+                    expect(assigns(:wiki)).to eq(private_wiki)
+                end
+
+                it 'returns http get success' do
+                    get :edit, params: {id: private_wiki.id}
+                    expect(response).to have_http_status(:success)
+                end
+
+                it 'specifically renders the index view' do
+                    get :edit, params: {id: private_wiki.id}
+                    expect(response).to render_template(:edit)
+                end
+            end
+        end
+
+        describe 'PUT #update' do
+            context 'update public wiki keeping it public' do
+                it 'assigns to @wiki the wiki with the id in url' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(assigns(:wiki).id).to eq(wiki.id)
+                end
+
+                it 'assigns @wiki the new updated values' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(assigns(:wiki).title).to eq("updated")
+                    expect(assigns(:wiki).body).to eq("new updated body")
+                    expect(assigns(:wiki).private).to eq(false)
+                end
+
+                it 'redirects user to show view' do
+                    put :update, params: {id: wiki.id, wiki: {title: "updated", body: "new updated body", private: false}}
+                    expect(response).to redirect_to(wiki_path(wiki.id))
+                end
+            end
+
+            context 'update public wiki to private ANYONES' do
+                it 'assigns to @wiki the wiki with the id in url' do
+                    put :update, params: {id: other_wiki.id, wiki: {title: "updated", body: "new updated body", private: true}}
+                    expect(assigns(:wiki).id).to eq(other_wiki.id)
+                end
+
+                it 'assigns @wiki the new updated values' do
+                    put :update, params: {id: other_wiki.id, wiki: {title: "updated", body: "new updated body", private: true}}
+                    expect(assigns(:wiki).title).to eq("updated")
+                    expect(assigns(:wiki).body).to eq("new updated body")
+                    expect(assigns(:wiki).private).to eq(true)
+                end
+
+                it 'redirects user to show view' do
+                    put :update, params: {id: other_wiki.id, wiki: {title: "updated", body: "new updated body", private: true}}
+                    expect(response).to redirect_to(wiki_path(other_wiki.id))
+                end
+            end
+        end
+
+        describe 'DELETE #destroy' do
+            context 'admin on own wiki' do
+                it 'assigns to @wiki the wiki with id in url to delete' do
+                    delete :destroy, params: {id: wiki.id} #signed in as my_user i own this wiki
+                    expect(assigns(:wiki)).to eq(wiki)
+                end
+
+                it 'deletes that wiki from the datbase' do
+                    delete :destroy, params: {id: wiki.id}
+                    expect(Wiki.where(id: wiki.id)).to eq([])
+                end
+
+                it 'redirects user to the wiki home page' do
+                    delete :destroy, params: {id: wiki.id}
+                    expect(response).to redirect_to(wikis_path)
+                end
+            end
+
+            context 'admin on someone elses wiki' do
+                it 'assigns to @wiki the wiki with id in url to delete' do
+                    delete :destroy, params: {id: other_wiki.id} #signed in as my_user i own this wiki
+                    expect(assigns(:wiki)).to eq(other_wiki)
+                end
+
+                it 'deletes that wiki from the datbase' do
+                    delete :destroy, params: {id: other_wiki.id}
+                    expect(Wiki.where(id: other_wiki.id)).to eq([])
+                end
+
+                it 'redirects user to the wiki home page' do
+                    delete :destroy, params: {id: other_wiki.id}
+                    expect(response).to redirect_to(wikis_path)
                 end
             end
         end

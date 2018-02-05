@@ -1,4 +1,5 @@
 class WikiPolicy < ApplicationPolicy
+    include ActiveModel::Dirty
   
     def create?
         user.admin? || user.premium? || user.standard? && record.private == false
@@ -16,13 +17,31 @@ class WikiPolicy < ApplicationPolicy
         end
         return false
     end
-    
-    
-    
-    
-    class Scope < Scope #can use to define a scope of a model that user sees based on role
-        def resolve
-            scope
+
+    def edit?
+        user.admin? || user.premium? || user.standard? && record.private == false
+    end
+
+    def update?
+        if user.admin?
+            return true
+        elsif user.standard?
+            if record.private == true
+                return false
+            end
+        elsif user.premium?
+            if record.user == user
+                return true
+            elsif record.user != user
+                if record.private_changed?
+                    return false
+                end
+            end
         end
+        return true
+    end
+
+    def destroy?
+        user.admin? || user.standard? && record.user == user || user.premium? && record.user == user
     end
 end

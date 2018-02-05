@@ -1,7 +1,6 @@
 class WikisController < ApplicationController
 
     before_action :authenticate_user!, except: [:index, :show]
-    before_action :wiki_owner?, only: [:destroy]
 
     def index
         @wikis = Wiki.all
@@ -36,6 +35,7 @@ class WikisController < ApplicationController
 
     def edit
         @wiki = Wiki.find(params[:id])
+        authorize @wiki
     end
 
     def update
@@ -43,6 +43,8 @@ class WikisController < ApplicationController
         @wiki.title = params[:wiki][:title]
         @wiki.body = params[:wiki][:body]
         @wiki.private = params[:wiki][:private]
+
+        authorize @wiki
 
         if @wiki.save
             flash[:notice] = "Wiki successfully updated!"
@@ -56,6 +58,8 @@ class WikisController < ApplicationController
     def destroy
         @wiki = Wiki.find(params[:id])
 
+        authorize @wiki
+
         if @wiki.delete
             flash[:notice] = "Wiki successfully deleted!"
             redirect_to(wikis_path)
@@ -64,14 +68,4 @@ class WikisController < ApplicationController
             render :show
         end
     end
-
-    private
-        def wiki_owner?
-            @wiki = Wiki.find(params[:id])
-
-            if @wiki.user != current_user
-                flash[:alert] = "You can only delete a wiki you own"
-                redirect_to(wiki_path(@wiki.id))
-            end 
-        end
 end
