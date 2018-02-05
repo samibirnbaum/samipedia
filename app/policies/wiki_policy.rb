@@ -42,6 +42,13 @@ class WikiPolicy < ApplicationPolicy
     end
 
     def destroy?
-        user.admin? || user.standard? && record.user == user || user.premium? && record.user == user
+        if user.nil?
+            return false
+        elsif user
+            if user.admin? || user.standard? && record.user == user || user.premium? && record.user == user
+                return true
+            end
+        end
+        return false
     end
 end

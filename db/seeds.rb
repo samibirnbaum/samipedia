@@ -1,9 +1,10 @@
 require "random_data"
+require 'faker'
 
 5.times do
     user = User.new(
-        email: RandomData.random_email,
-        password: RandomData.random_sentence
+        email: Faker::Internet.unique.free_email,
+        password: Faker::Internet.password(8)
     )
     user.skip_confirmation!
     user.save!
@@ -39,9 +40,9 @@ admin.save!
 
 10.times do
     Wiki.create!(
-        title: RandomData.random_sentence,
+        title: Faker::Pokemon.name,
         body: RandomData.random_paragraph,
-        private: false,
+        private: [1, 0].sample,
         user: @users.sample
     )
 end
