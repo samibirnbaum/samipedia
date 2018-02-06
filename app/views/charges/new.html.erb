@@ -1,0 +1,15 @@
+<div class="container-mine">
+    <h3>Thank you for choosing a Premium Account</h3>
+    <smal class="text-muted">To confirm your account please proceed with payment</small>
+
+    <br>
+    <br>
+    <%= form_tag charges_path do %>
+        <script class='stripe-button' src="https://checkout.stripe.com/checkout.js" 
+            data-key="<%= @stripe_btn_data[:key] %>" 
+            data-amount="<%= @stripe_btn_data[:amount] %>"
+            data-currency="gbp" 
+            data-description="<%= @stripe_btn_data[:description] %>" >
+        </script>
+    <% end %>
+</div>

@@ -31,7 +31,11 @@
                                 <%=current_user.email%>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <%= link_to  "Edit Account", destroy_user_session_path, method: :delete, class: "dropdown-item" %>
+                                <%if current_user.standard?%>
+                                    <%= link_to  "Upgrade to Premium Account", new_charge_path, class: "dropdown-item" %>
+                                <%elsif current_user.premium?%>
+                                    <%= link_to  "Downgrade to Standard Account", "#", class: "dropdown-item" %>
+                                <%end%>
                                 <%= link_to  "Sign Out", destroy_user_session_path, method: :delete, class: "dropdown-item" %>
                             </div>
                         </li>
