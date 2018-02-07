@@ -16,3 +16,14 @@
 //= require jquery3
 //= require popper
 //= require bootstrap
+document.addEventListener("turbolinks:load", function() {
+    $(document).ready(function(){
+        $('#premium-button').popover({
+            container: 'body',
+            animation: true,
+            trigger: 'hover',
+            title: "Premium Account",
+            content: "Gives you access to Private Wikis"
+            });
+    });
+})

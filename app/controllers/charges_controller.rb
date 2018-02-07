@@ -26,7 +26,7 @@ class ChargesController < ApplicationController
         
         #if all goes well
         current_user.premium! #change role to premium
-        flash[:notice] = "You are now active as a Premium member ---- #{current_user.role}"
+        flash[:notice] = "Thank you, your payment was successful. You are now a Premium Member! An email reciept had been sent. You can now view, create and edit private wikis!"
         redirect_to root_path
 
         #else
