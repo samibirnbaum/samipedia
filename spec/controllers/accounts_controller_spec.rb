@@ -23,7 +23,6 @@ RSpec.describe AccountsController, type: :controller do
 
         it 'changes the role of the user to standard' do
             post :downgrade_account
-            p " user in rspec test role change#{@user}"
             expect(@user.role).to eq("standard")
         end
 

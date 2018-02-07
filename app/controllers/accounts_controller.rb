@@ -5,7 +5,6 @@ class AccountsController < ApplicationController
     end
 
     def downgrade_account
-        p " current_user in contoller method #{current_user}"
         current_user.standard!
         
         if current_user.wikis.where(private: true).any?
