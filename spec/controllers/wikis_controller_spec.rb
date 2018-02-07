@@ -261,6 +261,21 @@ RSpec.describe WikisController, type: :controller do
         end
     end
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     context 'premimum user' do
         before do
             @request.env["devise.mapping"] = Devise.mappings[:user]
@@ -497,6 +512,12 @@ RSpec.describe WikisController, type: :controller do
         end
     end
 
+    
+    
+    
+    
+    
+    
     
     
     

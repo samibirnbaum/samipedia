@@ -7,5 +7,9 @@ Rails.application.routes.draw do
 
   resources :charges, only:[:new, :create]
 
+  
+  post '/account/upgrade', to: 'accounts#upgrade_account', as: 'account_upgrade'
+  post '/account/downgrade', to: 'accounts#downgrade_account', as: 'account_downgrade'
+
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

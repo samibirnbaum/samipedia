@@ -26,4 +26,8 @@ document.addEventListener("turbolinks:load", function() {
             content: "Gives you access to Private Wikis"
             });
     });
+
+    $("#downgrade-button").click(function(){
+        return confirm("Warning:\n\nIf you continue your account will be downgraded and you will no longer have access to private wikis. \n\nAll your current private wikis will be automatically made public.");
+    });
 })

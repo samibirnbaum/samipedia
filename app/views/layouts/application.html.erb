@@ -32,9 +32,9 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <%if current_user.standard?%>
-                                    <%= link_to  "Upgrade to Premium Account", new_charge_path, class: "dropdown-item" %>
+                                    <%= link_to  "Upgrade to Premium Account", account_upgrade_path, method: :post, class: "dropdown-item" %>
                                 <%elsif current_user.premium?%>
-                                    <%= link_to  "Downgrade to Standard Account", "#", class: "dropdown-item" %>
+                                    <%= link_to  "Downgrade to Standard Account", account_downgrade_path, method: :post, class: "dropdown-item", id: "downgrade-button" %>
                                 <%end%>
                                 <%= link_to  "Sign Out", destroy_user_session_path, method: :delete, class: "dropdown-item" %>
                             </div>
