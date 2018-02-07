@@ -15,20 +15,20 @@ RSpec.describe AccountsController, type: :controller do
     describe 'POST #downgrade_account' do
         before do
             @request.env["devise.mapping"] = Devise.mappings[:user]
-            @user = my_user
-            @user.premium!
-            @user.confirm
-            sign_in @user
+            user = my_user
+            user.premium!
+            user.confirm
+            sign_in user
         end
 
         it 'changes the role of the user to standard' do
             post :downgrade_account
-            expect(@user.role).to eq("standard")
+            expect(User.first.role).to eq("standard")
         end
 
         it 'changes all of users private wikis to public' do
             post :downgrade_account
-            expect(private_wiki.private).to eq(false)
+            expect(User.first.wikis.private).to eq(false)
         end
 
         it 'redirects to root page' do
