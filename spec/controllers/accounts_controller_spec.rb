@@ -23,12 +23,12 @@ RSpec.describe AccountsController, type: :controller do
 
         it 'changes the role of the user to standard' do
             post :downgrade_account
-            expect(User.first.role).to eq("standard")
+            expect(user.role).to eq("standard")
         end
 
         it 'changes all of users private wikis to public' do
             post :downgrade_account
-            expect(User.first.wikis.private).to eq(false)
+            expect(user.wikis.private).to eq(false)
         end
 
         it 'redirects to root page' do
