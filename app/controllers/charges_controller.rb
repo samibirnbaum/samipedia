@@ -21,7 +21,8 @@ class ChargesController < ApplicationController
             customer: customer.id, # Note -- this is NOT the user_id in your app
             amount: Amount.default,
             description: "Premium Membership",
-            currency: 'gbp'
+            currency: 'gbp',
+            receipt_email: customer.email
         )
         
         #if all goes well
