@@ -5,6 +5,8 @@ class Wiki < ApplicationRecord
     #@user_id
     
     belongs_to :user
+    has_many :collaborators, dependent: :destroy
+    has_many :users, through: :collaborators
 
     validates_presence_of :title
     validates_presence_of :body

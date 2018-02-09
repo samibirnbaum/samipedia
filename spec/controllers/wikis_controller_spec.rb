@@ -142,7 +142,7 @@ RSpec.describe WikisController, type: :controller do
 
                 it 'redirects user to the show page' do
                     post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
-                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                    expect(response).to redirect_to(wiki_path(my_user.wikis_created.last.id))
                 end
             end
 
@@ -335,7 +335,7 @@ RSpec.describe WikisController, type: :controller do
 
                 it 'redirects user to the show page' do
                     post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
-                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                    expect(response).to redirect_to(wiki_path(my_user.wikis_created.last.id))
                 end
             end
 
@@ -354,7 +354,7 @@ RSpec.describe WikisController, type: :controller do
 
                 it 'redirects user to the show page' do
                     post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}
-                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                    expect(response).to redirect_to(wiki_path(my_user.wikis_created.last.id))
                 end
             end
         end
@@ -583,7 +583,7 @@ RSpec.describe WikisController, type: :controller do
 
                 it 'redirects user to the show page' do
                     post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: false}}
-                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                    expect(response).to redirect_to(wiki_path(my_user.wikis_created.last.id))
                 end
             end
 
@@ -602,7 +602,7 @@ RSpec.describe WikisController, type: :controller do
 
                 it 'redirects user to the show page' do
                     post :create, params: {wiki: {title: "title", body: "the body of our new wiki", private: true}}
-                    expect(response).to redirect_to(wiki_path(my_user.wikis.last.id))
+                    expect(response).to redirect_to(wiki_path(my_user.wikis_created.last.id))
                 end
             end
         end

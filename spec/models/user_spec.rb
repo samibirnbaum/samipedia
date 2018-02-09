@@ -10,6 +10,8 @@ RSpec.describe User, type: :model do
         end
 
         it { should have_many(:wikis) }
+        it { should have_many(:collaborators) }
+        it { should have_many(:wikis).through(:collaborators) }
     end
 
     describe 'Role Attribute' do

@@ -10,6 +10,8 @@ RSpec.describe Wiki, type: :model do
         end
 
         it { should belong_to(:user) }
+        it { should have_many(:collaborators) }
+        it { should have_many(:users).through(:collaborators) }
 
         it { should validate_presence_of(:title) }
         it { should validate_presence_of(:body) }

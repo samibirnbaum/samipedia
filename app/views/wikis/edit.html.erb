@@ -42,4 +42,16 @@
             <%= f.submit ("Update"), class: "btn btn-success btn-lg" %>
         </div>
     <% end %>
+
+    <!-- collaborators view -->
+    <%if @wiki.user == current_user || current_user.admin? %>
+        <div>
+            <ul>
+                <%@wiki.users.each do |user|%>
+                    <li><%=user.email%></li> <%= link_to  "Delete Collaborator", "#", class: "btn btn-outline-danger btn-sm" %>
+                <%end%>
+            </ul>
+            <%= link_to  "Create New Collaborator", "#", class: "btn btn-outline-success btn-sm" %>
+        </div>
+    <%end%>
 </div>

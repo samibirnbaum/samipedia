@@ -8,7 +8,9 @@ class User < ApplicationRecord
   #@load of devise atts
   enum role: [:standard, :premium, :admin]
 
-  has_many :wikis
+  has_many :wikis_created, foreign_key: "user_id", class_name: "Wiki", dependent: :destroy
+  has_many :collaborators, dependent: :destroy
+  has_many :wikis, through: :collaborators
 
 
 
