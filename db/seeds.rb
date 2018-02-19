@@ -4,7 +4,8 @@ require 'faker'
 5.times do
     user = User.new(
         email: Faker::Internet.unique.free_email,
-        password: Faker::Internet.password(8)
+        password: Faker::Internet.password(8),
+        role: ["standard", "premium", "standard"].sample
     )
     user.skip_confirmation!
     user.save!
@@ -47,5 +48,37 @@ admin.save!
     )
 end
 
-puts "#{User.all.count} Users Created"
-puts "#{Wiki.all.count} Wikis Created"
+Wiki.all.each do |wiki|
+    if wiki.user.standard?
+        wiki.update_attribute(:private, 0)
+    end
+    if wiki.user.premium?
+        3.times {Collaborator.create!(wiki: wiki, user: @users.sample)}
+    end
+end
+
+
+
+
+puts "#{User.all.count} Users Created\n\n"
+premium_count = 0
+standard_count = 0
+admin_count = 0
+User.all.each do|user|  
+    if user.premium?
+        premium_count = premium_count + 1
+    elsif user.standard?
+        standard_count = standard_count + 1
+    elsif user.admin?
+        admin_count = admin_count + 1
+    end
+end
+puts "#{standard_count} standard users"
+puts "#{premium_count} premium users"
+puts "#{admin_count} admin user \n\n"
+
+puts "#{Wiki.all.count} Wikis Created\n\n"
+Wiki.all.each {|wiki| puts "#{wiki.title} premium owned!" if wiki.user.premium?}
+puts
+
+puts "#{Collaborator.all.count} Collaborators Created for premium owned wikis"

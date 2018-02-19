@@ -44,7 +44,7 @@
     <% end %>
 
     <!-- collaborators view -->
-    <%if @wiki.user == current_user || current_user.admin? %>
+    <%if @wiki.user == current_user && @wiki.user.premium? || current_user.admin? && !@wiki.user.standard? %>
         <div>
             <ul>
                 <%@wiki.users.each do |user|%>

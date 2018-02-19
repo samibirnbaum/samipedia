@@ -13,7 +13,7 @@
         <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
         <small>Public Wiki <br></small>
         <small>
-            Created by <%=wiki.user.email%> <br> 
+            Created by <%=wiki.user.email%> ~ <%=wiki.user.role%> user <br> 
             <%=time_ago_in_words(wiki.created_at)%> ago
         </small>
         <br>
@@ -30,7 +30,7 @@
         <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
         <small class="small-mine"> Private Wiki <br></small>
         <small>
-            Created by <%=wiki.user.email%> <br> 
+            Created by <%=wiki.user.email%> ~ <%=wiki.user.role%> user <br> 
             <%=time_ago_in_words(wiki.created_at)%> ago
         </small>
         <br>
