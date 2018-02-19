@@ -42,16 +42,28 @@
             <%= f.submit ("Update"), class: "btn btn-success btn-lg" %>
         </div>
     <% end %>
+    
+    <br>
+    <br>
 
     <!-- collaborators view -->
-    <%if @wiki.user == current_user && @wiki.user.premium? || current_user.admin? && !@wiki.user.standard? %>
-        <div>
+    <%if @wiki.private && (@wiki.user == current_user || current_user.admin?) %>
+        <div class="form-group container container-mine">
+            <h4>Current Collaborators</h4>
             <ul>
                 <%@wiki.users.each do |user|%>
-                    <li><%=user.email%></li> <%= link_to  "Delete Collaborator", "#", class: "btn btn-outline-danger btn-sm" %>
+                    <li><%=user.email%>    <%= link_to  "x", "#", class: "btn btn-outline-danger btn-sm" %></li> 
                 <%end%>
             </ul>
-            <%= link_to  "Create New Collaborator", "#", class: "btn btn-outline-success btn-sm" %>
+            <br>
+            <h4>Add Collaborators</h4>
+            <div class="form-group">
+                <%= form_tag({controller: "wikis", action: "create"}, method: "post") do %> 
+                    <%= collection_select(:collaborator, :user, User.all, :id, :email, {}, {:class=>'form-control', :multiple=>true}) %> <br>
+                    <%=submit_tag("Add as a collaborator", data: { confirm: "Are you sure?" }, class: "btn btn-outline-success btn-sm")%>
+                <% end %>
+            </div>
+
         </div>
     <%end%>
 </div>

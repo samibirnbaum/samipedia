@@ -4,7 +4,7 @@ require 'faker'
 5.times do
     user = User.new(
         email: Faker::Internet.unique.free_email,
-        password: Faker::Internet.password(8),
+        password: "password",
         role: ["standard", "premium", "standard"].sample
     )
     user.skip_confirmation!
