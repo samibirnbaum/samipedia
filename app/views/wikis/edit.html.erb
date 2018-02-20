@@ -51,19 +51,18 @@
         <div class="form-group container container-mine">
             <h4>Current Collaborators</h4>
             <ul>
-                <%@wiki.users.each do |user|%>
-                    <li><%=user.email%>    <%= link_to  "x", "#", class: "btn btn-outline-danger btn-sm" %></li> 
+                <%@wiki.collaborators.each do |collaborator|%>
+                    <li><%=collaborator.user.email%>    <%= link_to  "x", "/wikis/#{@wiki.id}/collaborators/#{collaborator.id}", method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-outline-danger btn-sm" %></li> 
                 <%end%>
             </ul>
             <br>
             <h4>Add Collaborators</h4>
             <div class="form-group">
-                <%= form_tag({controller: "wikis", action: "create"}, method: "post") do %> 
+                <%= form_tag("/wikis/#{@wiki.id}/collaborators", method: "post") do %> 
                     <%= collection_select(:collaborator, :user, User.all, :id, :email, {}, {:class=>'form-control', :multiple=>true}) %> <br>
-                    <%=submit_tag("Add as a collaborator", data: { confirm: "Are you sure?" }, class: "btn btn-outline-success btn-sm")%>
+                    <%=submit_tag("Add as a collaborator", class: "btn btn-outline-success btn-sm")%>
                 <% end %>
             </div>
-
         </div>
     <%end%>
 </div>
