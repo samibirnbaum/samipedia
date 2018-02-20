@@ -52,7 +52,7 @@ Wiki.all.each do |wiki|
     if wiki.user.standard?
         wiki.update_attribute(:private, 0)
     end
-    if wiki.user.premium?
+    if wiki.user.premium? && wiki.private == true
         3.times {Collaborator.create!(wiki: wiki, user: @users.sample)}
     end
 end
@@ -78,7 +78,7 @@ puts "#{premium_count} premium users"
 puts "#{admin_count} admin user \n\n"
 
 puts "#{Wiki.all.count} Wikis Created\n\n"
-Wiki.all.each {|wiki| puts "#{wiki.title} premium owned!" if wiki.user.premium?}
+Wiki.all.each {|wiki| puts "#{wiki.title} premium owned and private!" if wiki.user.premium? && wiki.private == true}
 puts
 
-puts "#{Collaborator.all.count} Collaborators Created for premium owned wikis"
+puts "#{Collaborator.all.count} Collaborators Created for premium owned and private wikis"
