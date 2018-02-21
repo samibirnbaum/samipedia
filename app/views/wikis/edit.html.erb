@@ -12,14 +12,14 @@
             <%= f.text_area (:body), class: "form-control", rows: 12 %>
         </div>
         
-        <% if current_user.standard? %>
+        <% if current_user.standard? && @wiki.collaborators.where(user: current_user)[0] == nil %>
             <div class="form-check">
                 <%= f.check_box (:private), class: "form-check-input", disabled: true%>
                 <input type="hidden" id="wiki_private" name="wiki[private]" value="0"/>
                 <%= f.label (:private), class: "form-check-label" %>
                 <small class="form-text text-muted">Only Premium Users can privatize wikis</small>
             </div>
-        <%elsif current_user.premium? && @wiki.user != current_user %>
+        <%elsif current_user.premium? && @wiki.user != current_user || @wiki.collaborators.where(user: current_user)[0].user == current_user && @wiki.user != current_user %>
             <div class="form-check">
                 <%= f.check_box (:private), class: "form-check-input", disabled: true%>
                 <%if @wiki.private == true%>
@@ -46,7 +46,7 @@
     <br>
     <br>
 
-    <!-- collaborators view -->
+    <!-- collaborators view - only to be seen if you can edit collaborators-->
     <%if @wiki.private && (@wiki.user == current_user || current_user.admin?) %>
         <div class="form-group container container-mine">
             <h4>Current Collaborators</h4>
@@ -59,7 +59,7 @@
             <h4>Add Collaborators</h4>
             <div class="form-group">
                 <%= form_tag("/wikis/#{@wiki.id}/collaborators", method: "post") do %> 
-                    <%= collection_select(:collaborator, :user, User.all, :id, :email, {}, {:class=>'form-control', :multiple=>true}) %> <br>
+                    <%= collection_select(:collaborator, :user, User.all, :id, :email, {}, {:class=>'form-control', :multiple=>true, :required=>true}) %> <br>
                     <%=submit_tag("Add as a collaborator", class: "btn btn-outline-success btn-sm")%>
                 <% end %>
             </div>

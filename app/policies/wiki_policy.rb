@@ -11,7 +11,7 @@ class WikiPolicy < ApplicationPolicy
                 return true
             end
         elsif user
-            if user.admin? || user.premium? || user.standard? && record.private == false
+            if user.admin? || user.premium? || user.standard? && (record.private == false || record.collaborators.where(user: user)[0])
                 return true
             end
         end
@@ -19,11 +19,13 @@ class WikiPolicy < ApplicationPolicy
     end
 
     def edit?
-        user.admin? || user.premium? || user.standard? && record.private == false
+        user.admin? || user.premium? || user.standard? && (record.private == false || record.collaborators.where(user: user)[0])
     end
 
     def update?
         if user.admin?
+            return true
+        elsif record.collaborators.where(user: user)[0]
             return true
         elsif user.standard?
             if record.private == true

@@ -1,41 +1,84 @@
-<h1>Wiki's Home Page</h1>
+<div class="container container-mine">
+    <h1>Wiki's Home Page</h1>
 
-<hr>
+    <hr>
 
-<%= link_to "Create New Wiki", new_wiki_path, class: "btn btn-success" %>
+    <%= link_to "Create New Wiki", new_wiki_path, class: "btn btn-success" %>
 
-<br>
-<br>
+    <br>
+    <br>
 
-<h2>Public Wikis</h2>
-<%@wikis.each do |wiki|%>
-    <%if wiki.private == false%>
-        <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
-        <small>Public Wiki <br></small>
-        <small>
-            Created by <%=wiki.user.email%> ~ <%=wiki.user.role%> user <br> 
-            <%=time_ago_in_words(wiki.created_at)%> ago
-        </small>
-        <br>
-        <br>
+    <h2>Public Wikis</h2>
+    <h4>Everyone can edit</h4>
+    <br> 
+    <%@wikis.each do |wiki|%>
+        <%if wiki.private == false%>
+            <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+            <small>Public Wiki <br></small>
+            <small>
+                Created by <%=wiki.user.email%> ~ <%=wiki.user.role%> user <br> 
+                <%=time_ago_in_words(wiki.created_at)%> ago
+            </small>
+            <br>
+            <br>
+        <%end%>
     <%end%>
-<%end%>
 
-<hr>
+    <hr>
+    
+    <%if current_user%>
+        
+        <h2>Wikis You Are a Collaborater of:</h2>
+        <h4>You can edit</h4>
+        <br> 
+        <%if current_user && current_user.wikis.any?%>
+            <%current_user.wikis.each do |wiki|%>
+                <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+                <small>Collaborate Wiki <br></small>
+                <small>
+                    Created by <%=wiki.user.email%> ~ <%=wiki.user.role%> user <br> 
+                    <%=time_ago_in_words(wiki.created_at)%> ago
+                </small>
+                <br>
+                <br>
+            <%end%>
+        <%end%>
+        <hr>
 
-<h2>Private Wikis</h2>
-<h3 class="premium-title">Premium Members Only</h3>
-<%@wikis.each do |wiki|%>
-    <%if wiki.private == true%>
-        <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
-        <small class="small-mine"> Private Wiki <br></small>
-        <small>
-            Created by <%=wiki.user.email%> ~ <%=wiki.user.role%> user <br> 
-            <%=time_ago_in_words(wiki.created_at)%> ago
-        </small>
-        <br>
-        <br>
+        <h2>Wikis you own</h2>
+        <h4>You can edit and delete</h4>
+        <br> 
+        <%@wikis.each do |wiki|%>
+            <%if wiki.user == current_user%>
+                <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+                <small> Your Wiki <br></small>
+                <small>
+                    Created by <%=wiki.user.email%> ~ <%=wiki.user.role%> user <br> 
+                    <%=time_ago_in_words(wiki.created_at)%> ago
+                </small>
+                <br>
+                <br>
+            <%end%>
+        <%end%>
+        <hr>
+    
     <%end%>
-<%end%>
 
-<hr>
+    <%if current_user.admin? %>    
+        <h2>Welcome Admin</h2>
+        <h4>You can manage all private wikis</h4>
+        <br> 
+        <%@wikis.each do |wiki|%>
+            <%if wiki.private == true%>
+                <p class="p-mine"><%=link_to(wiki.title, wiki_path(wiki.id))%></p>
+                <small>Private Wiki <br></small>
+                <small>
+                    Created by <%=wiki.user.email%> ~ <%=wiki.user.role%> user <br> 
+                    <%=time_ago_in_words(wiki.created_at)%> ago
+                </small>
+                <br>
+                <br>
+            <%end%>
+        <%end%>
+    <%end%>
+</div>

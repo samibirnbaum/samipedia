@@ -1,7 +1,7 @@
 require "random_data"
 require 'faker'
 
-5.times do
+20.times do
     user = User.new(
         email: Faker::Internet.unique.free_email,
         password: "password",
@@ -39,7 +39,7 @@ admin.save!
 
 
 
-10.times do
+30.times do
     Wiki.create!(
         title: Faker::Pokemon.name,
         body: RandomData.random_paragraph,
@@ -52,8 +52,8 @@ Wiki.all.each do |wiki|
     if wiki.user.standard?
         wiki.update_attribute(:private, 0)
     end
-    if wiki.user.premium? && wiki.private == true
-        3.times {Collaborator.create!(wiki: wiki, user: @users.sample)}
+    if (wiki.user.premium? || wiki.user.admin?) && wiki.private == true
+        Collaborator.create!(wiki: wiki, user: wiki.user)
     end
 end
 

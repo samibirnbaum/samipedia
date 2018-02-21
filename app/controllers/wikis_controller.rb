@@ -25,6 +25,7 @@ class WikisController < ApplicationController
         authorize @wiki #checks wiki policy
 
         if @wiki.save
+            Collaborator.create(user: @wiki.user, wiki: @wiki)
             flash[:notice] = "Your new wiki has been successfully saved!"
             redirect_to(wiki_path(@wiki.id))
         else
