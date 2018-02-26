@@ -1,0 +1,31 @@
+<!-- 4 Scenarios
+1. new wiki checkbox for standard users (no access)
+2. new wiki chheckbox for other users (yes access)
+3. edit wiki checkbox for owners (yes access)
+4. edit wiki checkbox for non owners (no access)
+
+If very neccessary these could be combined to two scenarios, no access and yes access -->
+
+<%if current_user.standard? && wiki.created_at.nil?%>
+    <%= f.check_box (:private), class: "form-check-input", disabled: true%>
+    <input type="hidden" id="wiki_private" name="wiki[private]" value="0"/>
+    <%= f.label (:private), class: "form-check-label" %>
+    <small class="form-text text-muted">Only Premium Users can create private wikis</small>
+<%elsif wiki.created_at.nil?%>
+    <%= f.check_box (:private), class: "form-check-input"%>
+    <%= f.label (:private), class: "form-check-label" %>
+    <small class="form-text text-muted">Only Premium Users can create private wikis</small>
+<%elsif current_user.admin? || @wiki.user == current_user && current_user.premium?%>
+    <%= f.check_box (:private), class: "form-check-input"%>
+    <%= f.label (:private), class: "form-check-label" %>
+    <small class="form-text text-muted">You can only change private status of your own wiki</small>
+<%else%>
+    <%= f.check_box (:private), class: "form-check-input", disabled: true%>
+    <%if @wiki.private == true%>
+        <input type="hidden" id="wiki_private" name="wiki[private]" value="1"/>
+    <%else%>
+        <input type="hidden" id="wiki_private" name="wiki[private]" value="0"/>
+    <%end%>
+    <%= f.label (:private), class: "form-check-label" %>
+    <small class="form-text text-muted">You can only change private status of your own wiki</small>
+<%end%>

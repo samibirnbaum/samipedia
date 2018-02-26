@@ -1,47 +1,7 @@
 <h1 align="center">Edit Wiki</h1>
 
 <div class="container container-mine">
-    <%= form_for(@wiki) do |f| %>
-        <div class="form-group">
-            <%= f.label (:title) %>
-            <%= f.text_field (:title), class: "form-control form-control-lg"%>
-        </div>    
-        
-        <div class="form-group">
-            <%= f.label (:body) %>
-            <%= f.text_area (:body), class: "form-control", rows: 12 %>
-        </div>
-        
-        <% if current_user.standard? && @wiki.collaborators.where(user: current_user)[0] == nil %>
-            <div class="form-check">
-                <%= f.check_box (:private), class: "form-check-input", disabled: true%>
-                <input type="hidden" id="wiki_private" name="wiki[private]" value="0"/>
-                <%= f.label (:private), class: "form-check-label" %>
-                <small class="form-text text-muted">Only Premium Users can privatize wikis</small>
-            </div>
-        <%elsif current_user.premium? && @wiki.user != current_user || @wiki.collaborators.where(user: current_user)[0].user == current_user && @wiki.user != current_user %>
-            <div class="form-check">
-                <%= f.check_box (:private), class: "form-check-input", disabled: true%>
-                <%if @wiki.private == true%>
-                    <input type="hidden" id="wiki_private" name="wiki[private]" value="1"/>
-                <%else%>
-                    <input type="hidden" id="wiki_private" name="wiki[private]" value="0"/>
-                <%end%>
-                <%= f.label (:private), class: "form-check-label" %>
-                <small class="form-text text-muted">You can only change private status of your own wiki</small>
-            </div>
-        <%else%>
-            <div class="form-check">
-                <%= f.check_box (:private), class: "form-check-input"%>
-                <%= f.label (:private), class: "form-check-label" %>
-                <small class="form-text text-muted">You can only change private status of your own wiki</small>
-            </div>
-        <%end%>
-        
-        <div class="form-group text-center">
-            <%= f.submit ("Update"), class: "btn btn-success btn-lg" %>
-        </div>
-    <% end %>
+    <%= render partial: "form", locals: {wiki: @wiki, submit_text: "Update"} %>
     
     <br>
     <br>
@@ -59,7 +19,7 @@
             <h4>Add Collaborators</h4>
             <div class="form-group">
                 <%= form_tag("/wikis/#{@wiki.id}/collaborators", method: "post") do %> 
-                    <%= collection_select(:collaborator, :user, User.all, :id, :email, {}, {:class=>'form-control', :multiple=>true, :required=>true}) %> <br>
+                    <%= collection_select(:collaborator, :user, User.all.sort_by{|user| user.email}, :id, :email, {}, {:class=>'form-control', :multiple=>true, :required=>true}) %> <br>
                     <%=submit_tag("Add as a collaborator", class: "btn btn-outline-success btn-sm")%>
                 <% end %>
             </div>

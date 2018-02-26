@@ -62,3 +62,5 @@ gem 'faker', '~> 1.8', '>= 1.8.7'
 gem 'stripe'
 
 gem 'redcarpet', '~> 3.4'
+
+gem 'byebug', '~> 9.0', '>= 9.0.6'

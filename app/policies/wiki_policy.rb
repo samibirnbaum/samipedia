@@ -1,56 +1,68 @@
 class WikiPolicy < ApplicationPolicy
     include ActiveModel::Dirty
+
+    def new?
+        !user.nil?
+    end
   
     def create?
         user.admin? || user.premium? || user.standard? && record.private == false
     end
 
     def show?
-        if user.nil?
-            if record.private == false 
-                return true
-            end
-        elsif user
-            if user.admin? || user.premium? || user.standard? && (record.private == false || record.collaborators.where(user: user)[0])
-                return true
-            end
-        end
-        return false
+        record.private == false || user.admin? || record.collaborators.where(user: user).any?
     end
 
     def edit?
-        user.admin? || user.premium? || user.standard? && (record.private == false || record.collaborators.where(user: user)[0])
+        record.private == false || user.admin? || record.collaborators.where(user: user).any?
     end
 
     def update?
-        if user.admin?
-            return true
-        elsif record.collaborators.where(user: user)[0]
-            return true
-        elsif user.standard?
-            if record.private == true
-                return false
-            end
-        elsif user.premium?
-            if record.user == user
-                return true
-            elsif record.user != user
-                if record.private_changed?
-                    return false
-                end
-            end
-        end
-        return true
+        user.admin? || record.user == user || record.private == false && !record.private_changed? || record.collaborators.where(user: user).any? && !record.private_changed?
     end
 
     def destroy?
-        if user.nil?
-            return false
-        elsif user
-            if user.admin? || user.standard? && record.user == user || user.premium? && record.user == user
-                return true
-            end
+        user.admin? || record.user == user
+    end
+
+    
+    
+    class Scope
+        attr_reader :user, :scope
+        
+        def initialize(user, scope)
+            @user = user
+            @scope = scope
         end
-        return false
+
+        def resolve
+            wikis = []
+
+            if user.nil?
+                all_wikis = scope.all
+                all_wikis.each do |wiki|
+                    if wiki.private == false
+                        wikis << wiki
+                    end
+                end
+            elsif user.admin?
+                wikis = scope.all
+            elsif user.premium?
+                all_wikis = scope.all
+                all_wikis.each do |wiki|
+                    if wiki.private == false || wiki.collaborators.where(user: user).any? || wiki.user == user
+                        wikis << wiki
+                    end
+                end
+            elsif user.standard?
+                all_wikis = scope.all
+                all_wikis.each do |wiki|
+                    if wiki.private == false || wiki.collaborators.where(user: user).any?
+                        wikis << wiki
+                    end
+                end
+            end
+            wikis.sort_by{|wiki| wiki.title.downcase}
+        end
     end
 end
